@@ -48,7 +48,7 @@
       font-size: 14px;
     }
 
-    .link-button {
+    .button {
       display: inline-block;
       margin-top: 24px;
       text-align: center;
@@ -58,10 +58,13 @@
       border-radius: 6px;
       text-decoration: none;
       font-weight: 600;
+      cursor: pointer;
+      border: none;
+      width: 100%;
       transition: background-color 0.3s ease;
     }
 
-    .link-button:hover {
+    .button:hover {
       background-color: #005ea2;
     }
 
@@ -82,13 +85,20 @@
     <label for="screenshot">Screenshot of the error (if any):</label>
     <p class="note">Please attach your screenshot in the email you send.</p>
 
-    <a 
-      class="link-button" 
-      href="https://outlook.office.com/mail/deeplink/compose?to=servicedesk@stafflink.com.au" 
-      target="_blank" 
-      rel="noopener noreferrer">
-      Email servicedesk@stafflink.com.au
-    </a>
+    <button class="button" onclick="sendEmail()">Email servicedesk@stafflink.com.au</button>
   </div>
+
+  <script>
+    function sendEmail() {
+      const issueText = document.getElementById("issue").value.trim();
+
+      const subject = encodeURIComponent("IT Support Request");
+      const body = encodeURIComponent("Issue Description:\n\n" + issueText + "\n\nScreenshot: (attach if applicable)");
+
+      const emailUrl = `https://outlook.office.com/mail/deeplink/compose?to=servicedesk@stafflink.com.au&subject=${subject}&body=${body}`;
+
+      window.open(emailUrl, '_blank');
+    }
+  </script>
 </body>
 </html>
