@@ -38,14 +38,18 @@
       margin-bottom: 6px;
     }
 
+    input[type="text"],
     textarea {
       width: 100%;
-      height: 80px;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
-      resize: vertical;
       font-size: 14px;
+      resize: vertical;
+    }
+
+    textarea {
+      height: 80px;
     }
 
     .button {
@@ -79,7 +83,10 @@
   <div class="container">
     <h2>Contact IT Support</h2>
     
-    <label for="issue">Indicate Issue or Request:</label>
+    <label for="subject">Subject of the Issue:</label>
+    <input type="text" id="subject" placeholder="e.g. Printer not working in HR room" />
+
+    <label for="issue">Describe the Issue or Request:</label>
     <textarea id="issue" placeholder="Describe your issue..."></textarea>
 
     <label for="screenshot">Screenshot of the error (if any):</label>
@@ -90,13 +97,13 @@
 
   <script>
     function sendEmail() {
+      const subjectText = document.getElementById("subject").value.trim();
       const issueText = document.getElementById("issue").value.trim();
 
-      const subject = encodeURIComponent("IT Support Request");
+      const subject = encodeURIComponent(subjectText || "IT Support Request");
       const body = encodeURIComponent("Issue Description:\n\n" + issueText + "\n\nScreenshot: (attach if applicable)");
 
       const emailUrl = `https://outlook.office.com/mail/deeplink/compose?to=servicedesk@stafflink.com.au&subject=${subject}&body=${body}`;
-
       window.open(emailUrl, '_blank');
     }
   </script>
