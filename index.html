@@ -130,7 +130,7 @@
     // 2️⃣ Open Outlook Web in browser (even if inside Teams)
     async function emailInBrowser() {
       const { subject, body } = buildSubjectAndBody();
-      const url = `https://outlook.office.com/mail/deeplink/compose?to=servicedesk@stafflink.com.au&subject=${subject}&body=${body}`;
+      const url = `outlook.office.com/mail/deeplink/compose?to=servicedesk@stafflink.com.au&subject=${subject}&body=${body}`;
 
       // If inside Teams, open externally; otherwise open in new tab
       if (teamsReady && microsoftTeams?.app?.openLink) {
