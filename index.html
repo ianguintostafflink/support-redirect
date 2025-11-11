@@ -2,141 +2,109 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Contact IT Support</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>IT Support Form</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f4f6f9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+    :root { --brand:#0078d4; }
+    html, body {
+      height: 100%;
       margin: 0;
+      padding: 0;
+      background: #f4f6f9;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     }
-
-    .container {
-      background: white;
-      padding: 30px 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      max-width: 480px;
-      width: 100%;
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background:#fff;
+      border-bottom:1px solid #e5e7eb;
     }
-
-    h2 {
-      text-align: center;
-      color: #2b2e4a;
-      margin-bottom: 24px;
-    }
-
-    label {
+    .title {
       font-weight: 600;
-      display: block;
-      margin-top: 16px;
-      margin-bottom: 6px;
+      color:#2b2e4a;
+      font-size: 16px;
+      margin:0;
     }
-
-    input[type="text"],
-    textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-      resize: vertical;
+    .actions {
+      display:flex; gap:8px;
     }
-
-    textarea {
-      height: 80px;
-    }
-
-    .button {
-      display: inline-block;
-      margin-top: 16px;
-      text-align: center;
-      background-color: #0078d4;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 6px;
-      text-decoration: none;
+    .btn {
+      appearance: none;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
       font-weight: 600;
       cursor: pointer;
-      border: none;
+      background: var(--brand);
+      color:#fff;
+      transition: filter .15s ease;
+    }
+    .btn:hover { filter: brightness(.95); }
+    .wrapper {
+      height: calc(100% - 54px); /* 54px ≈ topbar height */
+    }
+    .frame {
       width: 100%;
-      transition: background-color 0.3s ease;
+      height: 100%;
+      border: 0;
+      background: transparent;
     }
-
-    .button:hover {
-      background-color: #005ea2;
-    }
-
     .note {
-      font-size: 13px;
-      color: #666;
-      margin-top: 8px;
+      position: absolute;
+      left: -9999px;
+      top: -9999px;
+      /* (kept for accessibility if needed) */
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Contact IT Support</h2>
+  <div class="topbar">
+    <h1 class="title">Submit IT Support Request</h1>
+    <div class="actions">
+      <button class="btn" id="openExternalBtn" title="Open form in your default browser">Open in browser</button>
+    </div>
+  </div>
 
-    <label for="subject">Subject of the Issue:</label>
-    <input type="text" id="subject" placeholder="" />
-
-    <label for="issue">Describe the Issue or Request:</label>
-    <textarea id="issue" placeholder="Describe your issue..."></textarea>
-
-    <label for="screenshot">Screenshot of the error (if any):</label>
-    <p class="note">Please attach your screenshot in the email you send.</p>
-
-    <button class="button" onclick="emailWithMailto()">📧 Email via Mail App</button>
-    <button class="button" onclick="emailInBrowser()">🌐 Email via Browser</button>
+  <div class="wrapper">
+    <!-- Use Airtable's EMBED URL (note the /embed/ segment). -->
+    <iframe
+      id="airtableFrame"
+      class="frame"
+      src="https://airtable.com/embed/appijLGbUlaK3dUDU/pagxGC0fhJvxRUm1j/form"
+      allowtransparency="true"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
   </div>
 
   <!-- Teams SDK -->
   <script src="https://res.cdn.office.net/teams-js/v2.0.0/js/MicrosoftTeams.min.js"></script>
-
   <script>
-    function buildSubjectAndBody() {
-      const subjectText = document.getElementById("subject").value.trim();
-      const issueText   = document.getElementById("issue").value.trim();
-      const subject = encodeURIComponent(subjectText || "IT Support Request");
-      const body    = encodeURIComponent("Issue Description:\n\n" + issueText + "\n\nScreenshot: (attach if applicable)");
-      return { subject, body };
-    }
+    const FORM_URL = "https://airtable.com/appijLGbUlaK3dUDU/pagxGC0fhJvxRUm1j/form";
+    const EMBED_URL = "https://airtable.com/embed/appijLGbUlaK3dUDU/pagxGC0fhJvxRUm1j/form";
 
-    // 1️⃣ Open default mail app (e.g., Outlook desktop, Mail, etc.)
-    function emailWithMailto() {
-      const { subject, body } = buildSubjectAndBody();
-      window.location.href = `mailto:servicedesk@stafflink.com.au?subject=${subject}&body=${body}`;
-    }
-
-    // 2️⃣ Open Outlook on the web externally (in default browser, e.g., Chrome)
-    async function emailInBrowser() {
-      const { subject, body } = buildSubjectAndBody();
-      const url = `https://outlook.office.com/mail/deeplink/compose?to=servicedesk@stafflink.com.au&subject=${subject}&body=${body}`;
-
-      // Try to open externally via Teams first
+    // Open the non-embed (normal) form externally (Chrome or user’s default browser)
+    async function openFormExternally() {
       try {
         await microsoftTeams.app.initialize();
         if (microsoftTeams?.app?.openLink) {
-          await microsoftTeams.app.openLink(url);  // opens outside Teams webview (default browser)
+          await microsoftTeams.app.openLink(FORM_URL);
           return;
         }
-      } catch (_) {
-        // not in Teams or init failed; continue to fallbacks
+      } catch (e) {
+        // Not in Teams or init failed; fall back to a normal window/tab
       }
-
-      // Fallbacks when not in Teams or if openLink fails
-      const win = window.open(url, "_blank", "noopener,noreferrer");
-      if (!win) {
-        // last-resort: replace current tab (breaks out of iframe in many cases)
-        window.open(url, "_top");
-      }
+      const w = window.open(FORM_URL, "_blank", "noopener,noreferrer");
+      if (!w) window.open(FORM_URL, "_top");
     }
+
+    // Wire up button
+    document.getElementById("openExternalBtn").addEventListener("click", openFormExternally);
+
+    // Ensure iframe uses the EMBED URL
+    document.getElementById("airtableFrame").src = EMBED_URL;
   </script>
 </body>
 </html>
