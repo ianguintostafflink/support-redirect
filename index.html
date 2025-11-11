@@ -54,7 +54,7 @@
 
     .button {
       display: inline-block;
-      margin-top: 24px;
+      margin-top: 16px;
       text-align: center;
       background-color: #0078d4;
       color: white;
@@ -82,7 +82,7 @@
 <body>
   <div class="container">
     <h2>Contact IT Support</h2>
-    
+
     <label for="subject">Subject of the Issue:</label>
     <input type="text" id="subject" placeholder="" />
 
@@ -92,19 +92,50 @@
     <label for="screenshot">Screenshot of the error (if any):</label>
     <p class="note">Please attach your screenshot in the email you send.</p>
 
-    <button class="button" onclick="sendEmail()">Email servicedesk@stafflink.com.au</button>
+    <button class="button" onclick="emailWithMailto()">📧 Email via Mail App</button>
+    <button class="button" onclick="emailInBrowser()">🌐 Email via Browser</button>
   </div>
 
+  <!-- Teams SDK -->
+  <script src="https://res.cdn.office.net/teams-js/v2.0.0/js/MicrosoftTeams.min.js"></script>
+
   <script>
-    function sendEmail() {
+    function buildSubjectAndBody() {
       const subjectText = document.getElementById("subject").value.trim();
-      const issueText = document.getElementById("issue").value.trim();
-
+      const issueText   = document.getElementById("issue").value.trim();
       const subject = encodeURIComponent(subjectText || "IT Support Request");
-      const body = encodeURIComponent("Issue Description:\n\n" + issueText + "\n\nScreenshot: (attach if applicable)");
+      const body    = encodeURIComponent("Issue Description:\n\n" + issueText + "\n\nScreenshot: (attach if applicable)");
+      return { subject, body };
+    }
 
-      const emailUrl = `https://outlook.office.com/mail/deeplink/compose?to=servicedesk@stafflink.com.au&subject=${subject}&body=${body}`;
-      window.open(emailUrl, '_blank');
+    // 1️⃣ Open default mail app (e.g., Outlook desktop, Mail, etc.)
+    function emailWithMailto() {
+      const { subject, body } = buildSubjectAndBody();
+      window.location.href = `mailto:servicedesk@stafflink.com.au?subject=${subject}&body=${body}`;
+    }
+
+    // 2️⃣ Open Outlook on the web externally (in default browser, e.g., Chrome)
+    async function emailInBrowser() {
+      const { subject, body } = buildSubjectAndBody();
+      const url = `https://outlook.office.com/mail/deeplink/compose?to=servicedesk@stafflink.com.au&subject=${subject}&body=${body}`;
+
+      // Try to open externally via Teams first
+      try {
+        await microsoftTeams.app.initialize();
+        if (microsoftTeams?.app?.openLink) {
+          await microsoftTeams.app.openLink(url);  // opens outside Teams webview (default browser)
+          return;
+        }
+      } catch (_) {
+        // not in Teams or init failed; continue to fallbacks
+      }
+
+      // Fallbacks when not in Teams or if openLink fails
+      const win = window.open(url, "_blank", "noopener,noreferrer");
+      if (!win) {
+        // last-resort: replace current tab (breaks out of iframe in many cases)
+        window.open(url, "_top");
+      }
     }
   </script>
 </body>
