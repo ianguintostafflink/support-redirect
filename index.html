@@ -54,7 +54,7 @@
 
     .button {
       display: inline-block;
-      margin-top: 16px;
+      margin-top: 24px;
       text-align: center;
       background-color: #0078d4;
       color: white;
@@ -92,56 +92,19 @@
     <label for="screenshot">Screenshot of the error (if any):</label>
     <p class="note">Please attach your screenshot in the email you send.</p>
 
-    <button class="button" onclick="emailWithMailto()">📧 Email via Mail App</button>
-    <button class="button" onclick="emailInBrowser()">🌐 Email via Browser</button>
+    <button class="button" onclick="sendEmail()">Email servicedesk@stafflink.com.au</button>
   </div>
 
-  <!-- Teams SDK -->
-  <script src="https://res.cdn.office.net/teams-js/v2.0.0/js/MicrosoftTeams.min.js"></script>
-
   <script>
-    // Initialize Teams SDK (safe to call outside Teams)
-    let teamsReady = false;
-    (async () => {
-      try {
-        await microsoftTeams.app.initialize();
-        teamsReady = true;
-      } catch (e) {
-        // Not in Teams — fallback will handle
-      }
-    })();
-
-    function buildSubjectAndBody() {
+    function sendEmail() {
       const subjectText = document.getElementById("subject").value.trim();
       const issueText = document.getElementById("issue").value.trim();
+
       const subject = encodeURIComponent(subjectText || "IT Support Request");
-      const body = encodeURIComponent(
-        "Issue Description:\n\n" + issueText + "\n\nScreenshot: (attach if applicable)"
-      );
-      return { subject, body };
-    }
+      const body = encodeURIComponent("Issue Description:\n\n" + issueText + "\n\nScreenshot: (attach if applicable)");
 
-    // 1️⃣ Open default mail app (e.g., Outlook desktop, Mail, etc.)
-    function emailWithMailto() {
-      const { subject, body } = buildSubjectAndBody();
-      window.location.href = `mailto:servicedesk@stafflink.com.au?subject=${subject}&body=${body}`;
-    }
-
-    // 2️⃣ Open Outlook Web in browser (even if inside Teams)
-    async function emailInBrowser() {
-      const { subject, body } = buildSubjectAndBody();
-      const url = `https://outlook.office.com/mail/deeplink/compose?to=servicedesk@stafflink.com.au&subject=${subject}&body=${body}`;
-
-      // If inside Teams, open externally; otherwise open in new tab
-      if (teamsReady && microsoftTeams?.app?.openLink) {
-        try {
-          await microsoftTeams.app.openLink(url);
-          return;
-        } catch (e) {
-          // fallback
-        }
-      }
-      window.open(url, "_blank");
+      const emailUrl = `https://outlook.office.com/mail/deeplink/compose?to=servicedesk@stafflink.com.au&subject=${subject}&body=${body}`;
+      window.open(emailUrl, '_blank');
     }
   </script>
 </body>
